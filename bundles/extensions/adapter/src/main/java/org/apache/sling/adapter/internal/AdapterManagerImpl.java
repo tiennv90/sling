@@ -78,6 +78,9 @@ public class AdapterManagerImpl implements AdapterManager {
      * The OSGi <code>ComponentContext</code> to retrieve
      * {@link AdapterFactory} service instances.
      */
+    // TIENNV: why this attribute marked as volatile ?
+    // This variable man be modified in many other thread
+    // volatile keyword tell JVM to do local update this variable for the current thread. 
     private volatile ComponentContext context;
 
     /**
@@ -85,6 +88,8 @@ public class AdapterManagerImpl implements AdapterManager {
      * the manager has been activated. These bound services will be accessed as
      * soon as the manager is being activated.
      */
+    // TIENNV: why final display here ?
+    // prevent "new" action to boundAdapterFactories object
     private final List<ServiceReference> boundAdapterFactories = new LinkedList<ServiceReference>();
 
     /**
@@ -172,6 +177,11 @@ public class AdapterManagerImpl implements AdapterManager {
 
         // register all adapter factories bound before activation
         final List<ServiceReference> refs;
+        
+        // TIENNV: why did code block mark as synchronized ?
+        // answer: updates of boundAdapterFactories should be synchronized, 
+        // that mean many threads access boundAdapterFactories object should be wait for
+        // current thread finish the updates on boundAdapterFactories
         synchronized ( this.boundAdapterFactories ) {
             refs = new ArrayList<ServiceReference>(this.boundAdapterFactories);
             boundAdapterFactories.clear();
@@ -271,6 +281,8 @@ public class AdapterManagerImpl implements AdapterManager {
 
         for (final String adaptable : adaptables) {
             AdapterFactoryDescriptorMap adfMap = null;
+            // TIENNV: why did code block mark as synchronized ?
+            // The same to activate() method
             synchronized ( this.descriptors ) {
                 adfMap = descriptors.get(adaptable);
                 if (adfMap == null) {
@@ -278,6 +290,8 @@ public class AdapterManagerImpl implements AdapterManager {
                     descriptors.put(adaptable, adfMap);
                 }
             }
+            // TIENNV: why did code block mark as synchronized ?
+            // adfMap may come from descriptors, once updating it needs to be synchronized
             synchronized ( adfMap ) {
                 adfMap.put(reference, factoryDesc);
             }

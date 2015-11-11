@@ -65,6 +65,18 @@ public class MimeTypeServiceImpl implements MimeTypeService, BundleListener {
     private static final String PROP_MIME_TYPES = "mime.types";
 
     @Reference(cardinality=ReferenceCardinality.OPTIONAL_UNARY, policy=ReferencePolicy.DYNAMIC)
+    // TIENNV: explains https://issues.apache.org/jira/browse/SLING-3793
+    //
+    // MineType Service works on multi-thread environment, the volatile indicate 
+    // logService variable should be stored in main memory instead of cpu cache
+    // so other threads access this variable can retrieve last updated value.
+    //
+    // ZIEGELER: The field is holding a dynamic reference - so this field can
+    // change over time. Whenever the log service gets available it is set to the service instance, 
+    // when the log service gets unavailable (e.g. if the log bundle is updated) it gets set to null. 
+    // Volatile is required in this case to make this change visible not only to the thread changing 
+    // the field, but to all threads using the mime type service
+    
     private volatile LogService logService;
 
     private Map<String, String> mimeTab = new HashMap<String, String>();

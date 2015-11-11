@@ -70,6 +70,8 @@ public class LogSupport implements SynchronousBundleListener, ServiceListener,
     // The loggers by bundle id used for logging messages originated from
     // specific bundles
     @SuppressWarnings("serial")
+    // TIENNV: why does LinkedHashMap use here ?
+    // loggers attribute requires access in order
     private final Map<Long, Logger> loggers = new LinkedHashMap<Long, Logger>(16,
         0.75f, true) {
         private static final int MAX_SIZE = 50;
@@ -380,6 +382,11 @@ public class LogSupport implements SynchronousBundleListener, ServiceListener,
     private Logger getLogger(Bundle bundle) {
         Long bundleId = new Long((bundle == null) ? 0 : bundle.getBundleId());
         Logger log;
+        // TIENNV: why loggers in charge of lock provider in this case ?
+        // loggers is private object so other code which know LogSupport object 
+        // There's nothing particularly magical about what you lock on - 
+        // you can think of it as a token, effectively. Anyone locking with 
+        // the same token will be trying to acquire the same lock
         synchronized (loggers) {
             log = loggers.get(bundleId);
         }

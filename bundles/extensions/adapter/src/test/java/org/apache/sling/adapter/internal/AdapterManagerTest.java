@@ -483,6 +483,8 @@ public class AdapterManagerTest {
 
     }
 
+    // TIENNV: why public static interface ?
+    // It can be removed with no effect on semantics. A nested interface is automatically "static"
     public static interface ITestAdapter {
 
     }

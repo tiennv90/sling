@@ -102,6 +102,10 @@ public class ClassLoaderFacade extends ClassLoader implements DynamicClassLoader
     /**
      * @see java.lang.ClassLoader#getResources(java.lang.String)
      */
+    // TIENNV: Why does Enumeration apply here ?
+    // 1/ Expect a vector as result 
+    // 2/ The methods who call this function may perform some synchronization, so result expect an object supported 
+    // synchronization like Vector  
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         if(!checkManagerActive()) {
